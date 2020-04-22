@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
+#include <string>
 using std::string;
 
 #include <sys/types.h>
@@ -29,6 +29,8 @@ using std::vector;
 #include <queue>
 using std::queue;
 
+#include "Mount.h"
+
 class Server {
 public:
 	Server( int passed_port , string passed_client_name);
@@ -42,12 +44,13 @@ public:
 	int get_available_client() const;
 	
 private:
+	Mount mount;
 	int port;
 	bool graceful_server_degradation {false};
 	vector <int> socket_vec;
 	queue <string> buffer;
 	int client_available {0};
-	int cmd_size {50};
+	int cmd_size {70};
 	string client_name;
 	mutex mux;
 };

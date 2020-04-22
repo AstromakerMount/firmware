@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/main.dir/main.cpp.o  -o main -Wl,-rpath,/home/pi/Desktop/firmware/build/libs -lpthread ../libs/libAngle.so ../libs/libServer.so ../libs/libMount.so -lwiringPi 

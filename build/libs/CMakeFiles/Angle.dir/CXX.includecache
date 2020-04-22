@@ -1,0 +1,16 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../libs/../include/Angle.h
+iostream
+-
+
+/home/pi/Desktop/firmware/libs/Angle.cpp
+Angle.h
+/home/pi/Desktop/firmware/libs/Angle.h
+

@@ -1,0 +1,10 @@
+/home/pi/Desktop/firmware/build/CMakeFiles/rebuild_cache.dir
+/home/pi/Desktop/firmware/build/CMakeFiles/edit_cache.dir
+/home/pi/Desktop/firmware/build/libs/CMakeFiles/edit_cache.dir
+/home/pi/Desktop/firmware/build/libs/CMakeFiles/rebuild_cache.dir
+/home/pi/Desktop/firmware/build/libs/CMakeFiles/Mount.dir
+/home/pi/Desktop/firmware/build/libs/CMakeFiles/Angle.dir
+/home/pi/Desktop/firmware/build/libs/CMakeFiles/Server.dir
+/home/pi/Desktop/firmware/build/src/CMakeFiles/rebuild_cache.dir
+/home/pi/Desktop/firmware/build/src/CMakeFiles/main.dir
+/home/pi/Desktop/firmware/build/src/CMakeFiles/edit_cache.dir
