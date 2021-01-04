@@ -4,8 +4,6 @@
 //driver parameters
 int const limit_frequency { 200000 }; 
 
-extern int const ramp_steps { 10000 }; //acceleration/deceleration ramp amplitude
-
 int const AR_stepper_step_per_rev { 8000 }; 
 int const DEC_stepper_step_per_rev { 8000 };
 
@@ -21,6 +19,14 @@ extern int const DEC_dir_pin { 23 };
 extern int const DEC_enable_pin { 24 };
 extern int const DEC_axis_error_pin { 25 };
 extern int const DEC_error_enable_pin { 5 };
+
+extern int const autoguide_AR_plus { 26 };
+extern int const autoguide_AR_minus { 27 };
+extern int const autoguide_DEC_plus { 28 };
+extern int const autoguide_DEC_minus { 29 };
+
+extern int const homing_sensor_AR { 12 };
+extern int const homing_sensor_DEC { 13 };
 
 //mechanical parameters
 int const AR_mechanical_ratio {88};

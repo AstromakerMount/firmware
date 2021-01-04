@@ -28,15 +28,25 @@ public:
 	void slew_axis ( double passed_target_AR , double passed_target_DEC, double passed_sideral_time );
 	void startup();
 	void start_track();
-	void stop_track();
-	void move_axis ( Axis passed_axis, int passed_speed );
-	void set_pier_side( PierSide passed_pier_side);
-	void sync_mount(double passed_target_AR , double passed_target_DEC);
+	void stop_track_AR();
+	void stop_track_DEC();
+	void jog_axis ( Axis passed_axis, int passed_direction, int passed_speed );
+	void sync ( double passed_target_AR_to_sync , double passed_target_DEC_to_sync, double sideral_time_to_sync );
+	void home ();
 	
 	//getter functions
-	bool get_tracking() const;
+	bool get_tracking_AR() const;
+	bool get_tracking_DEC() const;
+	double get_right_ascension() const;
+	double get_declination() const;
+	float get_autoguide_speed () const;
+	bool get_force_flip() const;
 
 	//setter functions
+	void set_force_flip( bool passed_force_flip);
+	void set_right_ascension ( double passed_right_ascension );
+	void set_declination ( double passed_declination );
+	void set_autoguide_speed ( float passed_autoguide_speed );
 	
 private:
 	double right_ascension { 0 };
@@ -44,7 +54,10 @@ private:
 	
 	bool abort { false }; 
 	bool force_flip {false};
-	bool tracking ; 
+	bool tracking_AR;
+	bool tracking_DEC;
+	
+	float autoguide_speed {0};
 	
 	PierSide pier_side { PierSide::east };
 	PierSide old_pier_side { PierSide::east };

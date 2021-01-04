@@ -219,9 +219,9 @@ src/preinstall:
 # Target rules for target src/CMakeFiles/main.dir
 
 # All Build rule for target.
+src/CMakeFiles/main.dir/all: libs/CMakeFiles/Server.dir/all
 src/CMakeFiles/main.dir/all: libs/CMakeFiles/Mount.dir/all
 src/CMakeFiles/main.dir/all: libs/CMakeFiles/Angle.dir/all
-src/CMakeFiles/main.dir/all: libs/CMakeFiles/Server.dir/all
 	$(MAKE) -f src/CMakeFiles/main.dir/build.make src/CMakeFiles/main.dir/depend
 	$(MAKE) -f src/CMakeFiles/main.dir/build.make src/CMakeFiles/main.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/pi/Desktop/firmware/build/CMakeFiles --progress-num=7,8 "Built target main"

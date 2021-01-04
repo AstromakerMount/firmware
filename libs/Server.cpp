@@ -31,9 +31,23 @@ using std::vector;
 
 #include "Server.h"
 
+
+
 Server::Server( int passed_port, string passed_client_name ) {
 	port = passed_port ;
 	client_name = passed_client_name;
+}
+
+void Server::coordinates_feedback(){
+	while (true){
+		string message = "Status#"+std::to_string(mount.get_right_ascension())+"#"+std::to_string(mount.get_declination())+"#";
+		
+		this->send_message ( message );
+		#ifdef DEBUG	
+		cout << "sent " << message << " as followup" << endl ;
+		#endif
+		std::this_thread::sleep_for ( std::chrono::seconds(1) );
+	}
 }
 
 string Server::get_last_cmd() {
@@ -80,25 +94,112 @@ void Server::receive_message( ){
 				connection_active = false; //signals thread must be closed
 				
 			else{ 
-				if ( command.std::string::compare ( "AbortSlew" ) == 0 ){ //if client requested to start tracking
+				if ( command.std::string::compare ( "Sync" ) == 0 ){ //if client requested to Sync mount to an object
+					double AR_to_sync = std::stoi ( get_instruction ( &message ) );
+					double DEC_to_sync = std::stoi ( get_instruction ( &message ) );
+					double sideral_time_to_sync = std::stoi ( get_instruction ( &message ) );
+					
+					mount.sync( AR_to_sync, DEC_to_sync, sideral_time_to_sync );
+					
+					#ifdef DEBUG
+					cout << "\n" << client_name << " requested a sync" << endl;
+					#endif
+				}
+				
+				else if ( command.std::string::compare ( "AbortSlew" ) == 0 ){ //if client requested to abort a slew
 					mount.abort_slew();
+					
+					#ifdef DEBUG
+					cout << "\n" << client_name << " requested an abort of movement" << endl;
+					#endif
 				}
 				
 				else if ( command.std::string::compare ( "Track" ) == 0 ){ //if client requested to start tracking
 					mount.start_track();
+					
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested to start tracking" << endl;
+					#endif
 				}
 				
 				else if ( command.std::string::compare ( "StopTrack" ) == 0 ){ //if client requested to start tracking
-					mount.stop_track();
+					mount.stop_track_AR();
+					mount.stop_track_DEC();
+					
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested to stop tracking" << endl;
+					#endif
 				}
 				
-				else if ( command.std::string::compare ( "SlewTo" ) == 0 ){ //if client requested to start tracking
+				else if ( command.std::string::compare ( "AutoguideSpeed" ) == 0 ){ //if client requested to start tracking
+					float autoguide_speed = std::stof ( get_instruction ( &message ) ); 
+					
+					mount.set_autoguide_speed( autoguide_speed );
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested a chenge of autoguide speed" << endl;
+					#endif
+				}
+				
+				else if ( command.std::string::compare ( "SlewTo" ) == 0 ){ //if client requested a slew
 					double target_AR = std::stod ( get_instruction ( &message ) ); 
 					double target_DEC = std::stod ( get_instruction ( &message ) );
 					double sideral_time = std::stod ( get_instruction ( &message ) ); 
-				
+					
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested a slew" << endl;
+					#endif
+					
 					mount.slew_axis ( target_AR , target_DEC, sideral_time );
 				}
+				
+				else if ( command.std::string::compare ( "Home" ) == 0 ){ //if client requested a slew
+					
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested a himing" << endl;
+					#endif
+					
+					mount.home ();
+				}
+				
+				else if ( command.std::string::compare ( "JogAxis" ) == 0 ){ //if client requested to jog an axis
+					string requested_axis = get_instruction ( &message ) ; 
+					int direction = std::stoi ( get_instruction ( &message ) );
+					int speed = std::stoi ( get_instruction ( &message ) );
+					
+					Axis axis;
+					
+					if ( requested_axis.std::string::compare ( "AxisPrimary" ) == 0 )
+						axis = primary_axis; 
+					else
+						axis = secondary_axis; 
+						
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested to jog " << axis << " axis" << endl;
+					#endif
+					
+					mount.jog_axis ( axis , direction, speed );
+				}
+				
+				else if ( command.std::string::compare ( "ForceFlip" ) == 0 ){ //if client requested to force flip
+					if ( std::stoi ( get_instruction ( &message ) ) )
+						mount.set_force_flip ( true );
+					else
+						mount.set_force_flip ( false );
+					
+					#ifdef DEBUG
+					cout  << "\n" << client_name << " requested a chenge on force flip" << endl;
+					#endif
+				}
+				
+				else if ( command.std::string::compare ( "CloseCOnnection" ) == 0 ){ //if client requested to force flip
+					socket_vec.erase( socket_vec.begin() + ID-1);
+					#ifdef DEBUG
+					cout  << "\nclient " << client_name << " removed from list" << endl;
+					#endif
+				}
+				
+				else 
+				cout << " ========> NO MATCHING COMMAND STRIG !!!" << endl;
 			}
     		}
 	}
@@ -141,10 +242,11 @@ void Server::start_server () {
 	server.sin_port = htons( port );
      
 	//Bind
-	if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
-	{
-		cerr << "bind failed" <<endl;
+	for( int counter=1 ; bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0 && counter<11 ; counter ++)	{
+		cerr << "bind failed at trial #" << counter <<endl;
+		if ( counter == 10 )
 		exit(1);
+		sleep(1);
 	}
 	#ifdef DEBUG
 	cout << "bind done" <<endl;
@@ -158,7 +260,13 @@ void Server::start_server () {
 	#endif
 	
 	c = sizeof(struct sockaddr_in);
-
+	
+	thread followup ( &Server::coordinates_feedback, this );
+	followup.detach();
+	#ifdef DEBUG	
+	cout << "Started followup thread" << endl ;
+	#endif
+	
 	while( true) {
 		
 		int new_socket = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
@@ -182,8 +290,9 @@ void Server::start_server () {
 void Server::stop_server () {
 	send_message("closeConnection#");
 	graceful_server_degradation = true;
-	
 }
+
+
 
 
 

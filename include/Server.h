@@ -38,6 +38,7 @@ public:
 	void stop_server();
 	void send_message (string message) ;
 	void receive_message ();
+	void coordinates_feedback();
 	string get_last_cmd();
 
 	//getter functions
